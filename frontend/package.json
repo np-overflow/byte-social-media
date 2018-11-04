@@ -2,17 +2,32 @@
   "name": "byte-social-media",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/client.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --config webpack.config.js --mode development --watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/joeltio/byte-social-media.git"
-  },
+  "repository": "git+https://github.com/joeltio/byte-social-media.git",
   "author": "",
   "bugs": {
     "url": "https://github.com/joeltio/byte-social-media/issues"
   },
-  "homepage": "https://github.com/joeltio/byte-social-media#readme"
+  "homepage": "https://github.com/joeltio/byte-social-media#readme",
+  "dependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-react-css-modules": "^3.4.2",
+    "babel-plugin-react-html-attrs": "^2.1.0",
+    "css-loader": "^1.0.1",
+    "style-loader": "^0.23.1",
+    "webpack": "^4.24.0",
+    "webpack-cli": "^3.1.2"
+  }
 }
