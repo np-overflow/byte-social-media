@@ -1,9 +1,13 @@
 import React from "react"
+import invariant from "invariant"
 
 import styles from "./mediaBanner.css"
 import SmallName from "./SmallName"
 
 const MediaBanner = props => {
+    invariant(props.iconSrc, "MediaBanner should have an iconSrc prop")
+    invariant(props.bgColor, "MediaBanner should have a bgColor prop")
+
     let smallNameProps = {
         bright: props.bright,
         dark: props.dark
