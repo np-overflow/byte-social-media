@@ -16,7 +16,10 @@ const MediaBanner = props => {
     return (
         <div style={{ backgroundColor: props.bgColor }}
             className="container-fluid p-1 d-flex flex-row align-items-center">
-            <img className={styles.icon + " p-1 pr-2"} src={props.iconSrc} />
+            <img className={styles.icon + " p-1 pr-2"}
+                 srcSet={props.iconSrcSet}
+                 src={props.iconSrc}
+                 sizes={props.iconSizes} />
             <SmallName {...smallNameProps}>{props.children}</SmallName>
         </div>
     )

@@ -12,7 +12,9 @@ const Card = props => {
         bright: props.titleBright,
         dark: props.titleDark,
         bgColor: props.titleBgColor,
-        iconSrc: props.iconSrc
+        iconSrc: props.iconSrc,
+        iconSizes: props.iconSizes,
+        iconSrcSet: props.iconSrcSet
     }
 
     return (
