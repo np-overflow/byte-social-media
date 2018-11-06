@@ -5,7 +5,8 @@
   "main": "src/client.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack --config webpack.config.js --mode development --watch"
+    "webpack": "webpack --config webpack.config.js --mode development --watch",
+    "build": "webpack --config webpack.config.js --mode development"
   },
   "repository": "git+https://github.com/joeltio/byte-social-media.git",
   "author": "",
