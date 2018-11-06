@@ -1,8 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom"
 
+import HomeLayout from "./home"
+
 const MainLayout = () => (
-    <div></div>
+    <HomeLayout />
 )
 
 const app = document.getElementById("app")
