@@ -15,8 +15,10 @@
   "homepage": "https://github.com/joeltio/byte-social-media#readme",
   "dependencies": {
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "invariant": "^2.2.4",
     "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "react-dom": "^16.6.0",
+    "react-masonry-component": "^6.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
