@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./socket:/socket
+    ports:
+      - "8000:80"
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    command: uwsgi --ini api_uwsgi.ini
+    volumes:
+      - ./api:/api
+      - ./socket:/socket
+    depends_on:
+      - db
