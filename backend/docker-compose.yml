@@ -4,6 +4,9 @@ services:
   db:
     image: postgres
 
+  redis:
+    image: redis
+
   nginx:
     build: ./nginx
     volumes:
@@ -21,3 +24,4 @@ services:
       - ./socket:/socket
     depends_on:
       - db
+      - redis
