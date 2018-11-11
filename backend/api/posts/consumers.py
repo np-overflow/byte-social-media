@@ -1,3 +1,5 @@
+import json
+
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 from django.apps import apps
 
@@ -15,12 +17,14 @@ class PostConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    async def disconnect(self):
+    async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
         )
-        pass
 
     async def receive(self, text_data):
         await self.send(text_data=text_data)
+
+    async def new_post(self, event):
+        await self.send(text_data=json.dumps(event["text"]))
