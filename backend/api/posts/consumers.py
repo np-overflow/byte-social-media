@@ -39,6 +39,12 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         for post in self.posts:
             await self.send_json(models.post_to_dict(post))
 
+    async def new_post(self, event):
+        """Handler for new post"""
+        self.posts.append(event["post"])
+        await self.send_json(models.post_to_dict(event["post"]))
+
+
 class PostConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.group_name = settings.POSTS_GROUP_NAME
