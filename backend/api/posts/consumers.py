@@ -109,5 +109,21 @@ class PostConsumer(AsyncWebsocketConsumer):
         if not isinstance(json_data, dict):
             return
 
+        request_type = json_data.get("type", None)
+        if request_type is None:
+            return
+
+        if request_type == "all_posts":
+            await request_posts
+
+    def get_posts(self):
+        return models.Post.objects.filter(isApproved=True)
+
+    async def request_posts(self):
+        """Request for all the approved posts"""
+        posts = await database_sync_to_async(self.get_posts)()
+        for post in posts:
+            await self.send_json(models.post_to_dict(post))
+
     async def new_post(self, event):
         await self.send(text_data=json.dumps(event["text"]))
