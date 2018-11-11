@@ -1,0 +1,1 @@
+POSTS_GROUP_NAME = "posts"
