@@ -32,6 +32,9 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             print("Malformed JSON data received")
             return
 
+        if not isinstance(json_data, dict):
+            return
+
         request_type = json_data.get("type", None)
         if request_type is None:
             return
@@ -97,7 +100,14 @@ class PostConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        await self.send(text_data=text_data)
+        try:
+            json_data = json.loads(text_data)
+        except json.decoder.JSONDecoderError:
+            print("Malformed JSON data received")
+            return
+
+        if not isinstance(json_data, dict):
+            return
 
     async def new_post(self, event):
         await self.send(text_data=json.dumps(event["text"]))
