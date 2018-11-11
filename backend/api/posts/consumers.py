@@ -76,10 +76,20 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             post.isApproved = False
 
         post.save()
+        return post
 
     async def approve_post(self, post_id, status):
         """Handler for approving posts"""
-        await database_sync_to_async(self.update_post)(post_id, status)
+        post = await database_sync_to_async(self.update_post)(post_id, status)
+
+        # Send to PostConsumer Group
+        await self.channel_layer.group_send(
+            settings.POSTS_GROUP_NAME,
+            {
+                "type": "new_post",
+                "post_id": post.pk
+            }
+        )
 
 
 class PostConsumer(AsyncWebsocketConsumer):
@@ -125,5 +135,9 @@ class PostConsumer(AsyncWebsocketConsumer):
         for post in posts:
             await self.send_json(models.post_to_dict(post))
 
+    def get_post(self, post_id):
+        return models.Post.objects.get(pk=post_id)
+
     async def new_post(self, event):
-        await self.send(text_data=json.dumps(event["text"]))
+        post = database_sync_to_async(get_post)(event["post_id"])
+        await self.send(text_data=models.post_to_dict(post))
