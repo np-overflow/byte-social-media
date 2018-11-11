@@ -23,6 +23,28 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         else:
             await self.close()
 
+    async def receive(self, text_data):
+        try:
+            json_data = json.loads(text_data)
+
+        except json.decoder.JSONDecodeError:
+            # Ignore malformed data
+            print("Malformed JSON data received")
+            return
+
+        request_type = json_data.get("type", None)
+        if request_type is None:
+            return
+
+        if request_type == "approval":
+            post_id = json_data.get("post_id", None)
+            status = json_data.get("status", None)
+
+            if post_id and status:
+                await approve_post(post_id, status)
+        elif request_type == "all_posts":
+            await request_posts()
+
     async def disconnect(self, close_code):
         if self.group_name is not None:
             await self.channel_layer.group_discard(
@@ -33,7 +55,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
     def get_posts(self):
         return models.Post.objects.all()
 
-    async def request_posts(self, event):
+    async def request_posts(self):
         """Request for all the posts"""
         posts = await database_sync_to_async(self.get_posts)()
         for post in posts:
@@ -43,7 +65,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         """Handler for new post"""
         await self.send_json(models.post_to_dict(event["post"]))
 
-    def update_post(post_id, status):
+    def update_post(self, post_id, status):
         post = models.Post.objects.get(pk=post_id)
         if status == settings.STATUS_APPROVED:
             post.isApproved = True
@@ -52,12 +74,9 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
 
         post.save()
 
-    async def approve_post(self, event):
+    async def approve_post(self, post_id, status):
         """Handler for approving posts"""
-        await database_sync_to_async(self.update_post)(
-            event["post_id"],
-            event["status"]
-        )
+        await database_sync_to_async(self.update_post)(post_id, status)
 
 
 class PostConsumer(AsyncWebsocketConsumer):
