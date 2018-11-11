@@ -6,4 +6,4 @@ COPY requirements.txt /api/
 RUN pip install -r requirements.txt
 COPY . /api/
 
-ENTRYPOINT ["sh", "entrypoint.sh"]
+CMD ["sh", "entrypoint.sh"]
