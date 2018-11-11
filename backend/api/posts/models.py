@@ -28,5 +28,6 @@ def post_to_dict(post_instance):
             "author": post_instance.author,
             "caption": post_instance.caption,
             "isApproved": post_instance.isApproved,
-            "media": media_to_dict(post_instance.media)
+            "platform": post_instance.platform,
+            "media": media_to_dict(post_instance.media),
         }
