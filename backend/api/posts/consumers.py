@@ -64,9 +64,13 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         for post in posts:
             await self.send_json(models.post_to_dict(post))
 
+    def get_post(self, post_id):
+        return models.Post.objects.get(pk=post_id)
+
     async def new_post(self, event):
         """Handler for new post"""
-        await self.send_json(models.post_to_dict(event["post"]))
+        post = await database_sync_to_async(get_post)(event["post_id"])
+        await self.send_json(models.post_to_dict(post))
 
     def update_post(self, post_id, status):
         post = models.Post.objects.get(pk=post_id)
