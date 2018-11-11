@@ -11,6 +11,7 @@ services:
     build: ./nginx
     volumes:
       - ./socket:/socket
+      - ./api/static:/static
     ports:
       - "8000:80"
     depends_on:
