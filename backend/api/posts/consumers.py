@@ -35,14 +35,29 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
 
     async def request_posts(self, event):
         """Request for all the posts"""
-        self.posts = await database_sync_to_async(self.get_posts)()
-        for post in self.posts:
+        posts = await database_sync_to_async(self.get_posts)()
+        for post in posts:
             await self.send_json(models.post_to_dict(post))
 
     async def new_post(self, event):
         """Handler for new post"""
-        self.posts.append(event["post"])
         await self.send_json(models.post_to_dict(event["post"]))
+
+    def update_post(post_id, status):
+        post = models.Post.objects.get(pk=post_id)
+        if status == settings.STATUS_APPROVED:
+            post.isApproved = True
+        elif status == settings.STATUS_REJECTED:
+            post.isApproved = False
+
+        post.save()
+
+    async def approve_post(self, event):
+        """Handler for approving posts"""
+        await database_sync_to_async(self.update_post)(
+            event["post_id"],
+            event["status"]
+        )
 
 
 class PostConsumer(AsyncWebsocketConsumer):
