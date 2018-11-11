@@ -8,6 +8,9 @@ from . import models
 
 
 class AdminPostConsumer(AsyncWebsocketConsumer):
+    async def send_json(self, data):
+        await self.send(json.dumps(data))
+
     async def connect(self):
         self.group_name = None
         # Only allow superusers
@@ -27,7 +30,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         try:
             json_data = json.loads(text_data)
 
-        except json.decoder.JSONDecodeError:
+        except ValueError:
             # Ignore malformed data
             print("Malformed JSON data received")
             return
@@ -46,7 +49,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             if post_id and status:
                 await approve_post(post_id, status)
         elif request_type == "all_posts":
-            await request_posts()
+            await self.request_posts()
 
     async def disconnect(self, close_code):
         if self.group_name is not None:
@@ -97,6 +100,9 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
 
 
 class PostConsumer(AsyncWebsocketConsumer):
+    async def send_json(self, data):
+        await self.send(json.dumps(data))
+
     async def connect(self):
         self.group_name = settings.POSTS_GROUP_NAME
 
@@ -116,7 +122,7 @@ class PostConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             json_data = json.loads(text_data)
-        except json.decoder.JSONDecoderError:
+        except ValueError:
             print("Malformed JSON data received")
             return
 
@@ -128,7 +134,7 @@ class PostConsumer(AsyncWebsocketConsumer):
             return
 
         if request_type == "all_posts":
-            await request_posts
+            await self.request_posts()
 
     def get_posts(self):
         return models.Post.objects.filter(isApproved=True)
