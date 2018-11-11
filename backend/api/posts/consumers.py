@@ -32,6 +32,9 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             print("Malformed JSON data received")
             return
 
+        if not isinstance(json_data, dict):
+            return
+
         request_type = json_data.get("type", None)
         if request_type is None:
             return
@@ -61,9 +64,13 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         for post in posts:
             await self.send_json(models.post_to_dict(post))
 
+    def get_post(self, post_id):
+        return models.Post.objects.get(pk=post_id)
+
     async def new_post(self, event):
         """Handler for new post"""
-        await self.send_json(models.post_to_dict(event["post"]))
+        post = await database_sync_to_async(get_post)(event["post_id"])
+        await self.send_json(models.post_to_dict(post))
 
     def update_post(self, post_id, status):
         post = models.Post.objects.get(pk=post_id)
@@ -73,10 +80,20 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             post.isApproved = False
 
         post.save()
+        return post
 
     async def approve_post(self, post_id, status):
         """Handler for approving posts"""
-        await database_sync_to_async(self.update_post)(post_id, status)
+        post = await database_sync_to_async(self.update_post)(post_id, status)
+
+        # Send to PostConsumer Group
+        await self.channel_layer.group_send(
+            settings.POSTS_GROUP_NAME,
+            {
+                "type": "new_post",
+                "post_id": post.pk
+            }
+        )
 
 
 class PostConsumer(AsyncWebsocketConsumer):
@@ -97,7 +114,34 @@ class PostConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
-        await self.send(text_data=text_data)
+        try:
+            json_data = json.loads(text_data)
+        except json.decoder.JSONDecoderError:
+            print("Malformed JSON data received")
+            return
+
+        if not isinstance(json_data, dict):
+            return
+
+        request_type = json_data.get("type", None)
+        if request_type is None:
+            return
+
+        if request_type == "all_posts":
+            await request_posts
+
+    def get_posts(self):
+        return models.Post.objects.filter(isApproved=True)
+
+    async def request_posts(self):
+        """Request for all the approved posts"""
+        posts = await database_sync_to_async(self.get_posts)()
+        for post in posts:
+            await self.send_json(models.post_to_dict(post))
+
+    def get_post(self, post_id):
+        return models.Post.objects.get(pk=post_id)
 
     async def new_post(self, event):
-        await self.send(text_data=json.dumps(event["text"]))
+        post = database_sync_to_async(get_post)(event["post_id"])
+        await self.send(text_data=models.post_to_dict(post))
