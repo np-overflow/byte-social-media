@@ -1,9 +1,10 @@
 import json
 
-from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from django.apps import apps
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 
 from . import settings
+from . import models
 
 
 class AdminPostConsumer(AsyncWebsocketConsumer):
@@ -29,6 +30,14 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
 
+    def get_posts(self):
+        return models.Post.objects.all()
+
+    async def request_posts(self, event):
+        """Request for all the posts"""
+        self.posts = await database_sync_to_async(self.get_posts)()
+        for post in self.posts:
+            await self.send_json(models.post_to_dict(post))
 
 class PostConsumer(AsyncWebsocketConsumer):
     async def connect(self):
