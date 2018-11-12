@@ -5,7 +5,7 @@ import { API_SOCKET_ENDPOINT_ADMIN_POSTS } from "../settings"
 
 const AdminLayout = () => (
     <div>
-        <AdminFeed endpoint={API_SOCKET_ENDPOINT_ADMIN_POSTS} controls />
+        <AdminFeed endpoint={API_SOCKET_ENDPOINT_ADMIN_POSTS} />
     </div>
 )
 
