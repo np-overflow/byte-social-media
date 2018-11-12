@@ -12,6 +12,7 @@ services:
     volumes:
       - ./backend/socket:/socket
       - ./backend/api/static:/static
+      - ./frontend/assets:/assets
     ports:
       - "8000:80"
     depends_on:
