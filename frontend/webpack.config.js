@@ -1,6 +1,9 @@
 module.exports = {
     context: __dirname,
-    entry: './src/client.js',
+    entry: {
+        main: './src/client.js',
+        admin: './src/admin.js',
+    },
     module: {
         rules: [
             {
@@ -25,6 +28,6 @@ module.exports = {
     output: {
         path: __dirname + '/assets/js/',
         publicPath: '/assets/js/',
-        filename: 'client.min.js'
+        filename: '[name].min.js'
     }
 }
