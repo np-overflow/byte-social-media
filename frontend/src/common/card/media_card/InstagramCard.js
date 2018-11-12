@@ -1,8 +1,8 @@
 import React from "react"
 import invariant from "invariant"
 
-import { INSTAGRAM_SRC, INSTAGRAM_BG_COLOR } from "../settings"
-import ResponsiveCard from "./ResponsiveCard"
+import { INSTAGRAM_SRC, INSTAGRAM_BG_COLOR } from "../../../settings"
+import ResponsiveCard from "../ResponsiveCard"
 
 const InstagramCard = props => {
     invariant(props.author, "InstagramCard should have an author")

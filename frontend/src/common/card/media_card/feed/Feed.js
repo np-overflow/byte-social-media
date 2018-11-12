@@ -1,12 +1,12 @@
 import React from "react"
 
 import Masonry from "react-masonry-component"
-import TwitterCard from "./TwitterCard"
-import FacebookCard from "./FacebookCard"
-import InstagramCard from "./InstagramCard"
+import TwitterCard from  "../TwitterCard"
+import FacebookCard from "../FacebookCard"
+import InstagramCard from "../InstagramCard"
 
-import MediaImage from "./MediaImage"
-import CardCaption from "./CardCaption"
+import MediaImage from "../../../MediaImage"
+import CardCaption from "../../CardCaption"
 
 const DISPLAY_APPROVED = "approved"
 const DISPLAY_ALL = "all"

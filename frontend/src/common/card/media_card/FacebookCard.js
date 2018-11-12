@@ -1,8 +1,8 @@
 import React from "react"
 import invariant from "invariant"
 
-import { FACEBOOK_SRC, FACEBOOK_BG_COLOR } from "../settings"
-import ResponsiveCard from "./ResponsiveCard";
+import { FACEBOOK_SRC, FACEBOOK_BG_COLOR } from "../../../settings"
+import ResponsiveCard from "../ResponsiveCard";
 
 const FacebookCard = props => {
     invariant(props.author, "FacebookCard should have an author prop")
