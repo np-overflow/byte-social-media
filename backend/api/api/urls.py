@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('notadmin/', admin.site.urls),
     path('api/hashtags/', include('hashtags.urls')),
+    path("", include("posts.urls")),
 ]

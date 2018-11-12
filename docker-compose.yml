@@ -8,10 +8,11 @@ services:
     image: redis
 
   nginx:
-    build: ./nginx
+    build: ./backend/nginx
     volumes:
-      - ./socket:/socket
-      - ./api/static:/static
+      - ./backend/socket:/socket
+      - ./backend/api/static:/static
+      - ./frontend/assets:/assets
     ports:
       - "8000:80"
     depends_on:
@@ -19,19 +20,19 @@ services:
       - websocket
 
   websocket:
-    build: ./uvicorn
+    build: ./backend/uvicorn
     volumes:
-      - ./api:/api
-      - ./socket:/socket
+      - ./backend/api:/api
+      - ./backend/socket:/socket
     depends_on:
       - redis
       - db
 
   api:
-    build: ./api
+    build: ./backend/api
     volumes:
-      - ./api:/api
-      - ./socket:/socket
+      - ./backend/api:/api
+      - ./backend/socket:/socket
     depends_on:
       - db
       - redis
