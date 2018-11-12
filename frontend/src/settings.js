@@ -23,3 +23,4 @@ export const INSTAGRAM_BG_COLOR = "#CD1662"
 
 export const API_ENDPOINT_HASHTAGS = "/api/hashtags/"
 export const API_SOCKET_ENDPOINT_POSTS = construct_ws_url("ws/posts/")
+export const API_SOCKET_ENDPOINT_ADMIN_POSTS = construct_ws_url("ws/admin/")
