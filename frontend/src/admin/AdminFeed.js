@@ -103,7 +103,9 @@ export default class AdminFeed extends React.Component {
             return {
                 displayPosts: prevState.posts
                     .filter(filterFn)
-                    .map(post => <AdminFeedCard cardJson={post} />),
+                    .map(post => <AdminFeedCard key={post["id"]}
+                                                websocket={prevState.ws}
+                                                cardJson={post} />),
                 displayType: newType
             }
         })
