@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+
+  redis:
+    image: redis
+
+  nginx:
+    build: ./backend/nginx
+    volumes:
+      - ./backend/socket:/socket
+      - ./backend/api/static:/static
+      - ./frontend/assets:/assets
+    ports:
+      - "8000:80"
+    depends_on:
+      - api
+      - websocket
+
+  websocket:
+    build: ./backend/uvicorn
+    volumes:
+      - ./backend/api:/api
+      - ./backend/socket:/socket
+    depends_on:
+      - redis
+      - db
+
+  api:
+    build: ./backend/api
+    volumes:
+      - ./backend/api:/api
+      - ./backend/socket:/socket
+    depends_on:
+      - db
+      - redis
+
