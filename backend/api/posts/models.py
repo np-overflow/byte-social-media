@@ -8,6 +8,7 @@ class Media(models.Model):
 
 class Post(models.Model):
     author = models.CharField(max_length=100)
+    post_identifier = models.CharField(max_length=200)
     platform = models.CharField(max_length=10)
     caption = models.CharField(max_length=400)
     isApproved = models.BooleanField(null=True)
