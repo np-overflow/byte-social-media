@@ -6,5 +6,10 @@ COPY requirements.txt /api/
 RUN pip install -r requirements.txt
 COPY . /api/
 
-# Create uwsgi user
-RUN useradd --system -s /bin/false uwsgi
+# change when in production
+ENV DJANGO_DB_NAME=default
+ENV DJANGO_SU_NAME=admin
+ENV DJANGO_SU_EMAIL=admin@my.company
+ENV DJANGO_SU_PASSWORD=mypass
+
+CMD ["sh", "entrypoint.sh"]

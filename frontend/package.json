@@ -20,7 +20,8 @@
     "invariant": "^2.2.4",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
-    "react-masonry-component": "^6.2.1"
+    "react-masonry-component": "^6.2.1",
+    "ws": "^6.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",

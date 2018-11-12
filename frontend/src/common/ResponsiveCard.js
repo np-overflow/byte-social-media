@@ -1,7 +1,7 @@
 import React from "react"
 
 import styles from "./responsiveCard.css"
-import Card from "../common/Card";
+import Card from "./Card";
 
 const ResponsiveCard = props => (
     <div className={styles.card}>
