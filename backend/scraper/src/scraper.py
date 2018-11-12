@@ -11,9 +11,7 @@ from enum import Enum
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from api.posts import models
 
-## Utilties 
 # Django setup to allow interfacing with django models
 def setup_django():
     # Add api to system path to faciliate importing of modules from it
@@ -22,6 +20,9 @@ def setup_django():
     # Django setup to interface with api through django 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
     django.setup()
+
+setup_django() # Must be run before importing models
+from posts import models
 
 ## Social media model bridges
 # Social Media plaforms
@@ -79,4 +80,6 @@ class SocialScraper(ABC):
         pass
 
 if __name__ == "__main__":
-    setup_django()
+    pass
+
+
