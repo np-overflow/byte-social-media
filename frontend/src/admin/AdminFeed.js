@@ -123,12 +123,11 @@ export default class AdminFeed extends React.Component {
                 // Check if the current display complements the approval status
                 if ((prevState.displayType === DISPLAY_APPROVED && !isApproved) ||
                         (prevState.displayType === DISPLAY_REJECTED && isApproved)) {
-                    newState.displayPosts = prevState.displayPosts.concat(
-                        <AdminFeedCard key={postId}
-                            approvalHandler={this.postApprovalHandlerCreator(postId)}
-                            websocket={prevState.ws}
-                            cardJson={newPost} />
-                    )
+                    // Find the post to remove
+                    const removePostIndex = prevState.displayPosts.findIndex(post => post.key === postId.toString())
+
+                    newState.displayPosts = prevState.displayPosts.slice(0, removePostIndex-1)
+                    newState.displayPosts = newState.displayPosts.concat(prevState.displayPosts.slice(removePostIndex+1))
                 }
 
                 return newState
