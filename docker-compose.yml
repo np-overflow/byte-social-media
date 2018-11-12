@@ -37,3 +37,9 @@ services:
       - db
       - redis
 
+  scraper:
+    build: ./scraper
+    volumes:
+      - ./api:/api
+      - ./scraper/src:/root/src
+    depends_on: - api
