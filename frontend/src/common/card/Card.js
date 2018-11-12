@@ -5,9 +5,6 @@ import styles from "./card.css"
 import MediaBanner from "../MediaBanner";
 
 const Card = props => {
-    invariant((props.children.length === 2) ||
-              (typeof props.children === "object"),
-              "Card should have 1 or 2 children elements")
     invariant(props.iconSrc, "Card should have an iconSrc prop")
 
     const mediaBannerProps = {

@@ -1,0 +1,30 @@
+.container {
+    width: 100%;
+    height: 40px;
+}
+
+.button {
+    width: 50%;
+    color: white;
+    border: none;
+    height: 100%;
+    cursor: pointer;
+}
+
+.tick {
+    background-color: #02cf62;
+    transition: background-color 0.2s;
+}
+.tick:hover {
+    background-color: #018e42;
+    transition: background-color 0.2s;
+}
+
+.cross {
+    background-color: #d01c33;
+    transition: background-color 0.2s;
+}
+.cross:hover {
+    background-color: #bf1a2f;
+    transition: background-color 0.2s;
+}
