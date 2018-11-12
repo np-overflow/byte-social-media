@@ -25,6 +25,7 @@ def media_to_dict(media_instance):
 def post_to_dict(post_instance):
     if post_instance is not None:
         return {
+            "id": post_instance.pk,
             "author": post_instance.author,
             "caption": post_instance.caption,
             "isApproved": post_instance.isApproved,
