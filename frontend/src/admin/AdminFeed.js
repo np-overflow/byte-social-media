@@ -167,9 +167,9 @@ export default class AdminFeed extends React.Component {
         })
     }
 
-    changeFilterToAll(event) { this.changeFilterType(DISPLAY_ALL) }
-    changeFilterToApproved(event) { this.changeFilterType(DISPLAY_APPROVED) }
-    changeFilterToRejected(event) { this.changeFilterType(DISPLAY_REJECTED) }
+    changeFilterToAll() { this.changeFilterType(DISPLAY_ALL) }
+    changeFilterToApproved() { this.changeFilterType(DISPLAY_APPROVED) }
+    changeFilterToRejected() { this.changeFilterType(DISPLAY_REJECTED) }
 
     render() {
         return (
