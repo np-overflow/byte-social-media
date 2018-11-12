@@ -47,7 +47,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             status = json_data.get("status", None)
 
             if post_id and status:
-                await approve_post(post_id, status)
+                await self.approve_post(post_id, status)
         elif request_type == "all_posts":
             await self.request_posts()
 
@@ -72,7 +72,8 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
 
     async def new_post(self, event):
         """Handler for new post"""
-        post = await database_sync_to_async(get_post)(event["post_id"])
+        data = event["text"]
+        post = await database_sync_to_async(self.get_post)(data["id"])
         await self.send_json(models.post_to_dict(post))
 
     def update_post(self, post_id, status):
@@ -94,7 +95,7 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
             settings.POSTS_GROUP_NAME,
             {
                 "type": "new_post",
-                "post_id": post.pk
+                "text": {"id": post.pk}
             }
         )
 
@@ -149,5 +150,6 @@ class PostConsumer(AsyncWebsocketConsumer):
         return models.Post.objects.get(pk=post_id)
 
     async def new_post(self, event):
-        post = database_sync_to_async(get_post)(event["post_id"])
-        await self.send(text_data=models.post_to_dict(post))
+        data = event["text"]
+        post = await database_sync_to_async(self.get_post)(data["id"])
+        await self.send_json(models.post_to_dict(post))

@@ -16,6 +16,6 @@ def update_socket_group(sender, instance, **kwargs):
         settings.ADMIN_GROUP_NAME,
         {
             "type": "new_post",
-            "post": models.post_to_dict(instance),
+            "text": models.post_to_dict(instance),
         }
     )
