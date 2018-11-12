@@ -90,14 +90,15 @@ class AdminPostConsumer(AsyncWebsocketConsumer):
         """Handler for approving posts"""
         post = await database_sync_to_async(self.update_post)(post_id, status)
 
-        # Send to PostConsumer Group
-        await self.channel_layer.group_send(
-            settings.POSTS_GROUP_NAME,
-            {
-                "type": "new_post",
-                "text": {"id": post.pk}
-            }
-        )
+        # Send to PostConsumer Group if it is an approved post
+        if status == settings.STATUS_APPROVED:
+            await self.channel_layer.group_send(
+                settings.POSTS_GROUP_NAME,
+                {
+                    "type": "new_post",
+                    "text": {"id": post.pk}
+                }
+            )
 
 
 class PostConsumer(AsyncWebsocketConsumer):
