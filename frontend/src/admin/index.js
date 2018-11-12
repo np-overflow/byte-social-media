@@ -1,11 +1,11 @@
 import React from "react"
 
-import Feed from "../common/Feed"
+import AdminFeed from "./AdminFeed"
 import { API_SOCKET_ENDPOINT_ADMIN_POSTS } from "../settings"
 
 const AdminLayout = () => (
     <div>
-        <Feed endpoint={API_SOCKET_ENDPOINT_ADMIN_POSTS} controls />
+        <AdminFeed endpoint={API_SOCKET_ENDPOINT_ADMIN_POSTS} controls />
     </div>
 )
 
