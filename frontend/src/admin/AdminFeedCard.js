@@ -11,10 +11,12 @@ const AdminFeedCard = props => {
 
     function approve(event) {
         sendApproval(props.websocket, APPROVAL_STATUS_APPROVED, props.cardJson["id"])
+        props.approvalHandler(true)
     }
 
     function reject(event) {
         sendApproval(props.websocket, APPROVAL_STATUS_REJECTED, props.cardJson["id"])
+        props.approvalHandler(false)
     }
 
     return (

@@ -3,7 +3,7 @@ import React from "react"
 import Masonry from "react-masonry-component"
 import AdminFeedCard from "./AdminFeedCard"
 import { requestPosts } from "../common/card/media_card/feed/feed_comm"
-import FeedFilterControls from "./FeedFilterControls";
+import FeedFilterControls from "./FeedFilterControls"
 
 const DISPLAY_APPROVED = "approved"
 const DISPLAY_ALL = "all"
@@ -35,6 +35,7 @@ export default class AdminFeed extends React.Component {
 
             const adminFeedCardProps = {
                 key: postJson["id"],
+                approvalHandler: this.postApprovalHandlerCreator(postJson["id"]),
                 cardJson: postJson,
                 websocket: prevState.ws,
             }
@@ -81,13 +82,67 @@ export default class AdminFeed extends React.Component {
         this.state.ws.close()
     }
 
+    updatePostStatus(posts, postId, newStatus) {
+        const postIndex = posts.find(post => post["id"] === postId)
+        // Deep copy the post at the post index
+        let newPost = JSON.parse(JSON.stringify(posts[postIndex]))
+        newPost["isApproved"] = newStatus
+
+        // Create new posts array with the new post
+        let newPosts = posts.slice(0, postIndex)
+        newPosts.push(newPost)
+        return newPosts.concat(posts.slice(postIndex+1))
+    }
+
+    postApprovalHandlerCreator(postId) {
+        return isApproved => {
+            // Update posts state
+            this.setState(prevState => {
+                // Find the post in posts
+                const postIndex = prevState.posts.findIndex(post => post["id"] === postId)
+
+                // Check if there are any changes
+                if (prevState.posts[postIndex]["isApproved"] === isApproved) {
+                    return {}
+                }
+
+                // Deep copy the post at the post index
+                let newPost = JSON.parse(JSON.stringify(prevState.posts[postIndex]))
+                newPost["isApproved"] = isApproved
+
+                // Create new posts array with the new posts
+                let newPosts = prevState.posts.slice(0, postIndex)
+                newPosts.push(newPost)
+                newPosts = newPosts.concat(prevState.posts.slice(postIndex+1))
+
+                let newState = {
+                    posts: newPosts,
+                }
+
+                // Determine of displayPosts needs to be updated
+                // Check if the current display complements the approval status
+                if ((prevState.displayType === DISPLAY_APPROVED && !isApproved) ||
+                        (prevState.displayType === DISPLAY_REJECTED && isApproved)) {
+                    newState.displayPosts = prevState.displayPosts.concat(
+                        <AdminFeedCard key={postId}
+                            approvalHandler={this.postApprovalHandlerCreator(postId)}
+                            websocket={prevState.ws}
+                            cardJson={newPost} />
+                    )
+                }
+
+                return newState
+            })
+        }
+    }
+
     changeFilterType(newType) {
         if (this.state.displayType === newType) {
             return
         }
 
         this.setState(prevState => {
-            let filterFn;
+            let filterFn
             switch (newType) {
                 case DISPLAY_ALL:
                     filterFn = post => true
@@ -104,6 +159,7 @@ export default class AdminFeed extends React.Component {
                 displayPosts: prevState.posts
                     .filter(filterFn)
                     .map(post => <AdminFeedCard key={post["id"]}
+                                                approvalHandler={this.postApprovalHandlerCreator(post["id"])}
                                                 websocket={prevState.ws}
                                                 cardJson={post} />),
                 displayType: newType
