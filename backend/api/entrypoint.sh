@@ -1,7 +1,6 @@
 # Migrate
 python manage.py makemigrations
 python manage.py migrate
-python manage.py collectstatic
 
 # Create admin user
 python -c "import django, os; \
