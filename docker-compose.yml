@@ -40,6 +40,7 @@ services:
   scraper:
     build: ./scraper
     volumes:
-      - ./api:/api
+      - ./api:/root/api
       - ./scraper/src:/root/src
-    depends_on: - api
+    depends_on: 
+      - api

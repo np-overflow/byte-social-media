@@ -23,8 +23,8 @@ RUN apk update && \
  apk --purge del .build-deps
 
 # Copy source code
-COPY src /root/src/
+COPY src /root
 
 # Run scraper
 WORKDIR /root
-ENTRYPOINT src/scraper.py
+CMD python scraper.py
