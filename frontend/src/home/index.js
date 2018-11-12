@@ -2,7 +2,7 @@ import React from "react"
 
 import styles from "./index.css"
 import HashtagTitle from "./HashtagTitle"
-import Feed from "../common/Feed"
+import Feed from "../common/card/media_card/feed/Feed"
 
 import { API_SOCKET_ENDPOINT_POSTS } from "../settings"
 

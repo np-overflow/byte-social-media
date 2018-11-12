@@ -2,7 +2,7 @@ import React from "react"
 import invariant from "invariant"
 
 import styles from "./card.css"
-import MediaBanner from "./MediaBanner";
+import MediaBanner from "../MediaBanner";
 
 const Card = props => {
     invariant((props.children.length === 2) ||
