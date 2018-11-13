@@ -268,7 +268,7 @@ class InstagramScraper(SocialScraper):
         
         if has_results:
             sleep(2) # wait for the search to load
-            post_urls = self.extract_urls(n_page=1)[:2]
+            post_urls = self.extract_urls(n_page=1)
             posts = list(map(self.process_post, post_urls))
         else: posts = []
 
