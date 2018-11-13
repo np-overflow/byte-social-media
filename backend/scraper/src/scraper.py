@@ -11,19 +11,22 @@ from enum import Enum
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
+from multiprocessing import Pool, cpu_count
+from time import sleep
 
-# Django setup to allow interfacing with django models
-def setup_django():
-    # Add api to system path to faciliate importing of modules from it
-    sys.path.append('api')
-
-    # Django setup to interface with api through django 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
-    django.setup()
-
-setup_django() # Must be run before importing models
-from posts import models
-
+## Django setup to allow interfacing with django models
+#def setup_django():
+#    # Add api to system path to faciliate importing of modules from it
+#    sys.path.append('api')
+#
+#    # Django setup to interface with api through django 
+#    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
+#    django.setup()
+#
+#setup_django() # Must be run before importing models
+#from posts import models
+#
 ## Social media model bridges
 # Social Media plaforms
 class SocialPlatform(Enum):
@@ -38,34 +41,42 @@ class ContentType(Enum):
 # Represents a form of social content of a certain content type
 # Bridges with api's Media model
 class SocialContent():
-    def __init__(self, content_type, content):
+    def __init__(self, content_type, content_url):
         self.content_type = content_type
-        self.content = content
+        self.content = content_url
     
     # Commit this object's state to the Media model in the database
     # as the media for the given post object
     def commit(self, post_model):
-        # Create media model from object state and assign to post
-        model = models.Media.create(kind=self.content_type, src=content)
+        if models.Media.objects.filter(src=self.content_url).exists():
+            # Retrieve existing mode from DB if already exists
+            model = models.Media.objects.get(src=self.content_url)
+        else:
+            # Create media model from object state 
+            model = models.Media.create(kind=self.content_type, 
+                                        src=self.content_url)
+            
+        # Assign model to post
         post_model.media = model
 
 # Represents a social media posts for a given attributes: 
-# platform, author, title, and array of contents
+# platform, author, caption, and array of contents
 # Bridges with api's Post model
 class SocialPost():
-    def __init__(platform, author, title, contents=[]):
+    def __init__(self, platform, author, caption, contents=[]):
         self.platform = platform
         self.author = author
-        self.title = title
+        self.caption = caption
         self.contents = contents
         
     # Commit this object's state to the Post model in the data
     def commit(self):
+        # TODO: add check if model already exists before commiting to DB
         # Commit each social content as seperate post models
         for content in contents:
             model = model.Post(author=self.author,
                                platform=self.platform,
-                               caption=self.title)
+                               caption=self.caption)
             content.commit(model)
             model.save()
 
@@ -73,13 +84,182 @@ class SocialPost():
 # Defines an interface for a Social media scraper that all Social media scrapers 
 # will implement
 class SocialScraper(ABC):
+    def __init__(self):
+        # Setup web scraper driver
+        #self.driver = webdriver.PhantomJS()
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5) # wait for 5 sec when trying to find elements
+
+    ## Scraper Utilities
+    # Scroll to the bottom of the page
+    def scroll_bottom(self):
+        self.driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
+    # Navigate back through history using JS
+    def navigate_back(self):
+        self.driver.execute_script("window.history.go(-1)")
+    
+    # Perform search of given search term on social media website
     @abstractmethod
-    # Scrap the given hashtag tag
+    def search(self, term):
+        pass
+
+    @abstractmethod
+    # Scrape the given hashtag tag
     # Returns a list of SocialPost posts scraped from the hashtag
     def scrape_hashtag(tag):
         pass
 
+# Create Social Media Scraper that targets Instagram
+class InstagramScraper(SocialScraper):
+    def __init__(self):
+        super().__init__()
+        self.login()
+
+    ## Scraper Actions
+    # Perform instagram login using credientials from the env vars
+    # INSTAGRAM_USERNAME and INSTAGRAM_PASSWORD
+    def login(self):
+        # Retreive login page and extract elements
+        self.driver.get("https://www.instagram.com/accounts/login/")
+        username_input = self.driver.find_element_by_name("username")
+        password_input = self.driver.find_element_by_name("password")
+        login_button = \
+            self.driver.find_element_by_css_selector('button[type="submit"]')
+        
+        # Enter crendientials
+        username_input.send_keys(os.environ["INSTAGRAM_USERNAME"])
+        password_input.send_keys(os.environ["INSTAGRAM_PASSWORD"])
+        
+        # Perform login
+        login_button.click()
+    
+    # Perform search of given search term on instagram
+    def search(self, term):
+        # Retrieve search bar elemeent
+        search_input = self.driver.\
+            find_element_by_css_selector('input[type="text"][placeholder="Search"]')
+        # Input search term
+        search_input.send_keys(term)
+        # Wait for search results
+        self.driver.find_element_by_xpath("//nav/div[2]/"
+                                          "div/div/div[2]/div[2]/div[2]")
+        # Perform search
+        search_input.send_keys(Keys.ENTER)
+        search_input.send_keys(Keys.ENTER)
+    
+    # Extract post urls from the specified number of pages n_page
+    # Returns a list of extracted urls
+    def extract_urls(self, n_page):
+        post_urls = set()
+
+        for i in range(n_page):
+            # Scroll to obtain new page of posts
+            self.scroll_bottom()
+            sleep(0.5)
+
+            # Retrieve posts elements
+            top_post_div = self.driver.find_element_by_xpath(
+                "//article/div[1]/div/div")
+            most_recent_div = self.driver.find_element_by_xpath(
+                "//article/div[2]/div")
+            posts_divs = [ top_post_div, most_recent_div ]
+
+            # Collate posts urls
+            # Post div is located under two layers of wrapper divs
+            for posts_div in posts_divs:
+                for wrapper_div in posts_div.find_elements_by_xpath("./div"):
+                    for post_div in wrapper_div.find_elements_by_xpath("./div"):
+                        # Extract post url
+                        post_link = post_div.find_element_by_tag_name("a")
+                        post_url = post_link.get_attribute("href")
+            
+                        post_urls.add(post_url)
+                
+        return list(post_urls)
+
+    # Process post infomation from the post specified by the given post_url
+    # Embeds post infomation in a SocialPost
+    # Returns the SocialPost
+    def process_post(self, post_url):
+        # Retrieve post elements
+        self.driver.get(post_url)
+        
+        # Extract post author
+        author_element =  \
+            self.driver.find_element_by_xpath(
+                "//article/header/div[2]/div[1]/div[1]/h2/a")
+        author = author_element.text
+    
+        # Extract post caption
+        caption_element = \
+            self.driver.find_element_by_xpath(
+                "//article/div[2]/div[1]/ul/li[1]/div/div/div/span")
+        caption = caption_element.text
+    
+        # Extract post content(s)
+        contents = []
+        # Extract SocialContent from content element
+        def extract_content(element):
+            has_img = len(element.find_elements_by_tag_name("video")) ==  0
+
+            content_type = ContentType.Image if has_img else ContentType.Video
+            if has_img:
+                content = element.find_element_by_tag_name("img") 
+            else:
+                content = element.find_element_by_tag_name("video") 
+            content_url = content.get_attribute("src")
+            
+            return SocialContent(content_type,
+                                 content_url)
+
+
+        content_div = \
+            self.driver.find_element_by_xpath("//article/div[1]")
+
+        # Determine if multiple images has to be extracted from a carosell
+        has_carosell = len(content_div.find_elements_by_tag_name("ul")) != 0
+
+        if has_carosell:
+            # Extract multiple content elements from carosell
+            for content_wrapper in content_div.find_elements_by_xpath(
+                    "div/div/div/div[2]/div/div[1]/div/ul/li"):
+
+                next_button = content_div.find_elements_by_xpath(
+                    "div/div/div/div[2]/button")[-1]
+                
+                # Extract content element
+                content_element = content_wrapper.find_element_by_xpath(
+                    "div/div/div/div[1]")
+                content = extract_content(content_element)
+                contents.append(content)
+
+                next_button.click()
+        else:
+            # Extract single content element
+            content_element = content_div.find_element_by_xpath("div/div[1]/div[1]")
+            content = extract_content(content_element)
+            contents.append(content)
+
+        # Construct SocialPost from extracted content
+        return SocialPost(platform=SocialPlatform.Instagram,
+                          author=author,
+                          caption=caption,
+                          contents=contents)
+                    
+    # Scrape the given hastag on instagram
+    # Returns a list of parsed SocialPost from the given hashtag
+    def scrape_hashtag(self, tag):
+        self.search(tag)
+        sleep(2) # wait for the search to load
+        post_urls = self.extract_urls(n_page=1)
+        posts = list(map(self.process_post, post_urls))
+        return posts
+        
+        
 if __name__ == "__main__":
-    pass
+    scraper = InstagramScraper()
 
-
+    while True:
+        scraper.scrape_hashtag("watercolor")
+    
