@@ -19,6 +19,7 @@ def admin(request):
     return HttpResponse(data)
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url="/notadmin/")
 def admin_input(request):
     if request.method == "POST":
         form = forms.PostForm(request.POST)
