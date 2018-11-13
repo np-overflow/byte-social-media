@@ -38,7 +38,7 @@ services:
       - redis
 
   scraper:
-    build: ./scraper
+    build: ./backend/scraper
     volumes:
       - ./api:/root/api
       - ./scraper/src:/root/src
