@@ -6,8 +6,7 @@ function construct_ws_url(endpoint) {
         new_uri = "ws:"
     }
 
-    new_uri += "//" + loc.host
-    new_uri += loc.pathname + endpoint
+    new_uri += "//" + loc.host + "/" + endpoint
 
     return new_uri
 }
