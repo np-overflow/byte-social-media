@@ -5,6 +5,7 @@
 import os
 import sys 
 import django
+import re
 
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -12,16 +13,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
 from multiprocessing import Pool, cpu_count
 from time import sleep
 
 # Django setup to allow interfacing with django models
 def setup_django():
     # Add api to system path to faciliate importing of modules from it
-    sys.path.append('api')
+    sys.path.append('/root/api')
 
     # Django setup to interface with api through django 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.settings')
     django.setup()
 
 setup_django() # Must be run before importing models
@@ -88,8 +90,10 @@ class SocialPost():
 class SocialScraper(ABC):
     def __init__(self):
         # Setup web scraper driver
-        #self.driver = webdriver.PhantomJS()
-        self.driver = webdriver.Firefox()
+        options = Options()
+        options.headless = True
+        self.driver = webdriver.Firefox(options=options)
+
         self.driver.implicitly_wait(5) # wait for 5 sec when trying to find elements
 
     ## Scraper Utilities
@@ -137,6 +141,7 @@ class InstagramScraper(SocialScraper):
         login_button.click()
     
     # Perform search of given search term on instagram
+    # Returns True if search is performed successfully otherwise False
     def search(self, term):
         # Retrieve search bar elemeent
         search_input = self.driver.\
@@ -146,9 +151,17 @@ class InstagramScraper(SocialScraper):
         # Wait for search results
         self.driver.find_element_by_xpath("//nav/div[2]/"
                                           "div/div/div[2]/div[2]/div[2]")
-        # Perform search
-        search_input.send_keys(Keys.ENTER)
-        search_input.send_keys(Keys.ENTER)
+
+        n_results = len(self.driver.find_elements_by_xpath(
+            "//nav/div[2]/div/div/div[2]/div[2]/div[2]/div/a"))
+        if n_results > 0:
+            # Perform search
+            search_input.send_keys(Keys.ENTER)
+            search_input.send_keys(Keys.ENTER)
+            return True
+        else:
+            return False
+    
     
     # Extract post urls from the specified number of pages n_page
     # Returns a list of extracted urls
@@ -156,27 +169,22 @@ class InstagramScraper(SocialScraper):
         post_urls = set()
 
         for i in range(n_page):
+            # Retrieve posts elements
+            posts_div = self.driver.find_element_by_xpath(
+                "//article/div[2]/div")
+
+            # Collate posts urls
+            for wrapper_div in posts_div.find_elements_by_xpath("./div"):
+                for post_div in wrapper_div.find_elements_by_xpath("./div"):
+                    # Extract post url
+                    post_link = post_div.find_element_by_tag_name("a")
+                    post_url = post_link.get_attribute("href")
+        
+                    post_urls.add(post_url)
+
             # Scroll to obtain new page of posts
             self.scroll_bottom()
             sleep(0.5)
-
-            # Retrieve posts elements
-            top_post_div = self.driver.find_element_by_xpath(
-                "//article/div[1]/div/div")
-            most_recent_div = self.driver.find_element_by_xpath(
-                "//article/div[2]/div")
-            posts_divs = [ top_post_div, most_recent_div ]
-
-            # Collate posts urls
-            # Post div is located under two layers of wrapper divs
-            for posts_div in posts_divs:
-                for wrapper_div in posts_div.find_elements_by_xpath("./div"):
-                    for post_div in wrapper_div.find_elements_by_xpath("./div"):
-                        # Extract post url
-                        post_link = post_div.find_element_by_tag_name("a")
-                        post_url = post_link.get_attribute("href")
-            
-                        post_urls.add(post_url)
                 
         return list(post_urls)
 
@@ -186,6 +194,9 @@ class InstagramScraper(SocialScraper):
     def process_post(self, post_url):
         # Retrieve post elements
         self.driver.get(post_url)
+        
+        # Extract post id from url
+        post_id = re.search("/([a-zA-Z0-9]+)/?", post_url).group(1)
         
         # Extract post author
         author_element =  \
@@ -244,7 +255,8 @@ class InstagramScraper(SocialScraper):
             contents.append(content)
 
         # Construct SocialPost from extracted content
-        return SocialPost(platform=SocialPlatform.Instagram,
+        return SocialPost(post_id=post_id,
+                          platform=SocialPlatform.Instagram,
                           author=author,
                           caption=caption,
                           contents=contents)
@@ -252,20 +264,36 @@ class InstagramScraper(SocialScraper):
     # Scrape the given hastag on instagram
     # Returns a list of parsed SocialPost from the given hashtag
     def scrape_hashtag(self, tag):
-        self.search(tag)
-        sleep(2) # wait for the search to load
-        post_urls = self.extract_urls(n_page=1)
-        posts = list(map(self.process_post, post_urls))
+        has_results = self.search(tag)
+        
+        if has_results:
+            sleep(2) # wait for the search to load
+            post_urls = self.extract_urls(n_page=1)[:2]
+            posts = list(map(self.process_post, post_urls))
+        else: posts = []
+
+        # reset page
+        self.driver.get("https://www.instagram.com")
+
         return posts
         
         
 if __name__ == "__main__":
-    scraper = InstagramScraper()
-
     while True:
-        # Scrape the hashtag
-        hashtag = os.environ.get("SCRAPER_HASHTAG")
-        posts = scraper.scrape_hashtag(hashtag)
-    
-        # Commit data to DB
-        for p in posts: p.commit()
+        try:
+            scraper = InstagramScraper()
+            # Scrape the hashtag
+            print("Scrapping hashtag...")
+            #hashtags = ["#bytehackz", "#bytehackz2018", "#bytehackzhackathon"]
+            hashtags =  [ "#watercolor" ]
+            posts = [ scraper.scrape_hashtag(tag) for tag in hashtags ]
+            posts = [ p for ps in posts for p in ps ] # flatten 2d list
+            print("scraped {} posts.".format(len(posts)))
+
+            # Commit data to DB
+            print("Commiting to DB...")
+            for p in posts: p.commit()
+        except KeyboardInterrupt:
+            break
+        except:
+            pass
