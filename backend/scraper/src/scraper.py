@@ -15,19 +15,19 @@ from selenium.webdriver.common.keys import Keys
 from multiprocessing import Pool, cpu_count
 from time import sleep
 
-## Django setup to allow interfacing with django models
-#def setup_django():
-#    # Add api to system path to faciliate importing of modules from it
-#    sys.path.append('api')
-#
-#    # Django setup to interface with api through django 
-#    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
-#    django.setup()
-#
-#setup_django() # Must be run before importing models
-#from posts import models
-#
-## Social media model bridges
+# Django setup to allow interfacing with django models
+def setup_django():
+    # Add api to system path to faciliate importing of modules from it
+    sys.path.append('api')
+
+    # Django setup to interface with api through django 
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api.api.settings')
+    django.setup()
+
+setup_django() # Must be run before importing models
+from posts import models
+
+# Social media model bridges
 # Social Media plaforms
 class SocialPlatform(Enum):
     Facebook = "facebook"
@@ -63,22 +63,24 @@ class SocialContent():
 # platform, author, caption, and array of contents
 # Bridges with api's Post model
 class SocialPost():
-    def __init__(self, platform, author, caption, contents=[]):
+    def __init__(self, platform, post_id, author, caption, contents=[]):
         self.platform = platform
+        self.post_id = post_id
         self.author = author
         self.caption = caption
         self.contents = contents
         
     # Commit this object's state to the Post model in the data
     def commit(self):
-        # TODO: add check if model already exists before commiting to DB
-        # Commit each social content as seperate post models
-        for content in contents:
-            model = model.Post(author=self.author,
-                               platform=self.platform,
-                               caption=self.caption)
-            content.commit(model)
-            model.save()
+        # Only commit the model if it doesnt already exists in DB
+        if not models.Post.objects.filter(post_identifier=self.post_id).exists():
+            # Create seperate post models for each piece of content
+            for content in contents:
+                model = model.Post(author=self.author,
+                                   platform=self.platform,
+                                   caption=self.caption)
+                content.commit(model)
+                model.save()
 
 ## Social Media Scrapers
 # Defines an interface for a Social media scraper that all Social media scrapers 
@@ -261,5 +263,9 @@ if __name__ == "__main__":
     scraper = InstagramScraper()
 
     while True:
-        scraper.scrape_hashtag("watercolor")
+        # Scrape the hashtag
+        hashtag = os.environ.get("SCRAPER_HASHTAG")
+        posts = scraper.scrape_hashtag(hashtag)
     
+        # Commit data to DB
+        for p in posts: p.commit()
