@@ -37,4 +37,5 @@ ENV INSTAGRAM_PASSWORD "superboy5"
 
 # Run scraper
 WORKDIR /root
+ENV PYTHONUNBUFFERED 1
 CMD python3 src/scraper.py
