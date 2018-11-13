@@ -10,4 +10,5 @@ def main(request):
         ["#foo", "#bar"]
 
     """
-    return JsonResponse([], safe=False)
+    hashtags = ["#bytehackz", "#bytehackz2018", "#bytehackzhackathon"]
+    return JsonResponse(hashtags, safe=False)
