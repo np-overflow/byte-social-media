@@ -42,9 +42,11 @@ export default class AdminFeed extends React.Component {
 
             switch (prevState.displayType) {
                 case DISPLAY_UNDECIDED:
-                    newState.displayPosts = prevState.displayPosts.concat(
-                        <AdminFeedCard {...adminFeedCardProps} />
-                    )
+                    if (postJson["isApproved"] === null) {
+                        newState.displayPosts = prevState.displayPosts.concat(
+                            <AdminFeedCard {...adminFeedCardProps} />
+                        )
+                    }
                     break
                 case DISPLAY_APPROVED:
                     if (postJson["isApproved"]) {
