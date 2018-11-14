@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # src/scraper.py
 #
@@ -180,17 +181,12 @@ class InstagramScraper(SocialScraper):
 
         for i in range(n_page):
             # Retrieve posts elements
-            posts_div = self.driver.find_element_by_xpath(
-                "//article/div[2]/div")
+            post_anchors = self.driver.find_elements_by_xpath("//article//a")
 
             # Collate posts urls
-            for wrapper_div in posts_div.find_elements_by_xpath("./div"):
-                for post_div in wrapper_div.find_elements_by_xpath("./div"):
-                    # Extract post url
-                    post_link = post_div.find_element_by_tag_name("a")
-                    post_url = post_link.get_attribute("href")
-
-                    post_urls.add(post_url)
+            for anchor in post_anchors:
+                post_url = anchor.get_attribute("href")
+                post_urls.add(post_url)
 
             # Scroll to obtain new page of posts
             self.scroll_bottom()
