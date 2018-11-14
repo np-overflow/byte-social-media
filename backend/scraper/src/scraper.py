@@ -45,7 +45,7 @@ class ContentType(Enum):
 class SocialContent():
     def __init__(self, content_type, content_url):
         self.content_type = content_type
-        self.content = content_url
+        self.content_url = content_url
 
     # Commit this object's state to the Media model in the database
     # as the media for the given post object
@@ -68,15 +68,23 @@ class SocialPost():
     def __init__(self, platform, post_id, author, caption, contents=[]):
         self.platform = platform
         self.post_id = post_id
-        self.author = author
-        self.caption = caption
+        self.author = self.truncate_str(author, 100)
+        self.caption = self.truncate_str(caption, 400)
         self.contents = contents
+
+    @staticmethod
+    def truncate_str(s, max_length):
+        if len(s) > max_length:
+            # Add elipsis character if it is too long
+            return s[:max_length-1] + "…"
+        else:
+            return s
 
     # Commit this object's state to the Post model in the data
     def commit(self):
         # Only commit the model if it doesn't already exists in DB
         if not models.Post.objects.filter(post_identifier=self.post_id).exists():
-            # Create seperate post models for each piece of content
+            # Create separate post models for each piece of content
             for content in self.contents:
                 model = models.Post.objects.create(author=self.author,
                                                    platform=self.platform,
@@ -198,6 +206,7 @@ class InstagramScraper(SocialScraper):
         post_id = re.search("/([a-zA-Z0-9]+)/?", post_url).group(1)
 
         # Extract post author
+        # NOTE: Does not always work
         author_element =  \
             self.driver.find_element_by_xpath(
                 "//article/header/div[2]/div[1]/div[1]/h2/a")
@@ -215,7 +224,7 @@ class InstagramScraper(SocialScraper):
         def extract_content(element):
             has_img = len(element.find_elements_by_tag_name("video")) == 0
 
-            content_type = ContentType.Image if has_img else ContentType.Video
+            content_type = ContentType.Image.value if has_img else ContentType.Video.value
             if has_img:
                 content = element.find_element_by_tag_name("img")
             else:
@@ -255,7 +264,7 @@ class InstagramScraper(SocialScraper):
 
         # Construct SocialPost from extracted content
         return SocialPost(post_id=post_id,
-                          platform=SocialPlatform.Instagram,
+                          platform=SocialPlatform.Instagram.value,
                           author=author,
                           caption=caption,
                           contents=contents)
