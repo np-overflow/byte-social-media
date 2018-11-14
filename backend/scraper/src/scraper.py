@@ -77,7 +77,7 @@ class SocialPost():
         # Only commit the model if it doesn't already exists in DB
         if not models.Post.objects.filter(post_identifier=self.post_id).exists():
             # Create seperate post models for each piece of content
-            for content in contents:
+            for content in self.contents:
                 model = models.Post.objects.create(author=self.author,
                                                    platform=self.platform,
                                                    caption=self.caption)
