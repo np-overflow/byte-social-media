@@ -6,7 +6,7 @@ import { requestPosts } from "../common/card/media_card/feed/feed_comm"
 import FeedFilterControls from "./FeedFilterControls"
 
 const DISPLAY_APPROVED = "approved"
-const DISPLAY_ALL = "all"
+const DISPLAY_UNDECIDED = "undecided"
 const DISPLAY_REJECTED = "rejected"
 
 export default class AdminFeed extends React.Component {
@@ -17,12 +17,12 @@ export default class AdminFeed extends React.Component {
             ws: null,
             posts: [],
             displayPosts: [],
-            displayType: DISPLAY_ALL,
+            displayType: DISPLAY_UNDECIDED,
         }
 
         this.postHandler = this.postHandler.bind(this)
         this.changeFilterType = this.changeFilterType.bind(this)
-        this.changeFilterToAll = this.changeFilterToAll.bind(this)
+        this.changeFilterToUndecided = this.changeFilterToUndecided.bind(this)
         this.changeFilterToApproved = this.changeFilterToApproved.bind(this)
         this.changeFilterToRejected = this.changeFilterToRejected.bind(this)
     }
@@ -41,7 +41,7 @@ export default class AdminFeed extends React.Component {
             }
 
             switch (prevState.displayType) {
-                case DISPLAY_ALL:
+                case DISPLAY_UNDECIDED:
                     newState.displayPosts = prevState.displayPosts.concat(
                         <AdminFeedCard {...adminFeedCardProps} />
                     )
@@ -121,7 +121,8 @@ export default class AdminFeed extends React.Component {
 
                 // Determine of displayPosts needs to be updated
                 // Check if the current display complements the approval status
-                if ((prevState.displayType === DISPLAY_APPROVED && !isApproved) ||
+                if (prevState.displayType === DISPLAY_UNDECIDED ||
+                        (prevState.displayType === DISPLAY_APPROVED && !isApproved) ||
                         (prevState.displayType === DISPLAY_REJECTED && isApproved)) {
                     // Find the post to remove
                     const removePostIndex = prevState.displayPosts.findIndex(post => post.key === postId.toString())
@@ -143,14 +144,14 @@ export default class AdminFeed extends React.Component {
         this.setState(prevState => {
             let filterFn
             switch (newType) {
-                case DISPLAY_ALL:
-                    filterFn = post => true
+                case DISPLAY_UNDECIDED:
+                    filterFn = post => post["isApproved"] === null
                     break
                 case DISPLAY_APPROVED:
                     filterFn = post => post["isApproved"]
                     break
                 case DISPLAY_REJECTED:
-                    filterFn = post => !post["isApproved"]
+                    filterFn = post => post["isApproved"] === false
                     break
             }
 
@@ -166,14 +167,14 @@ export default class AdminFeed extends React.Component {
         })
     }
 
-    changeFilterToAll() { this.changeFilterType(DISPLAY_ALL) }
+    changeFilterToUndecided() { this.changeFilterType(DISPLAY_UNDECIDED) }
     changeFilterToApproved() { this.changeFilterType(DISPLAY_APPROVED) }
     changeFilterToRejected() { this.changeFilterType(DISPLAY_REJECTED) }
 
     render() {
         return (
             <div>
-                <FeedFilterControls allHandler={this.changeFilterToAll}
+                <FeedFilterControls undecidedHandler={this.changeFilterToUndecided}
                                     approvedHandler={this.changeFilterToApproved}
                                     rejectedHandler={this.changeFilterToRejected} />
                 <Masonry {...this.props.masonryProps}>

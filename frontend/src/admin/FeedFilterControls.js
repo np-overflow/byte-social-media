@@ -5,27 +5,27 @@ export default class FeedFilterControls extends React.Component {
         super(props)
 
         this.state = {
-            all: true,
+            undecided: true,
             approved: false,
             rejected: false,
         }
-        this.handleAllClick = this.handleAllClick.bind(this)
+        this.handleUndecidedClick = this.handleUndecidedClick.bind(this)
         this.handleApprovedClick = this.handleApprovedClick.bind(this)
         this.handleRejectedClick = this.handleRejectedClick.bind(this)
     }
 
-    handleAllClick(event) {
+    handleUndecidedClick(event) {
         this.setState({
-            all: true,
+            undecided: true,
             approved: false,
             rejected: false,
         })
-        this.props.allHandler()
+        this.props.undecidedHandler()
     }
 
     handleApprovedClick(event) {
         this.setState({
-            all: false,
+            undecided: false,
             approved: true,
             rejected: false,
         })
@@ -34,7 +34,7 @@ export default class FeedFilterControls extends React.Component {
 
     handleRejectedClick(event) {
         this.setState({
-            all: false,
+            undecided: false,
             approved: false,
             rejected: true,
         })
@@ -45,9 +45,9 @@ export default class FeedFilterControls extends React.Component {
         return (
             <ul className="nav nav-pills">
                 <li className="nav-item">
-                    <a onClick={this.handleAllClick}
+                    <a onClick={this.handleUndecidedClick}
                        href="#"
-                       className={`nav-link ${this.state.all? "active": ""}`}>All</a>
+                       className={`nav-link ${this.state.undecided? "active": ""}`}>Undecided</a>
                 </li>
                 <li className="nav-item">
                     <a onClick={this.handleApprovedClick}
