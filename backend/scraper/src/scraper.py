@@ -55,8 +55,8 @@ class SocialContent():
             model = models.Media.objects.get(src=self.content_url)
         else:
             # Create media model from object state 
-            model = models.Media.create(kind=self.content_type, 
-                                        src=self.content_url)
+            model = models.Media.objects.create(kind=self.content_type,
+                                                src=self.content_url)
             
         # Assign model to post
         post_model.media = model
@@ -78,9 +78,9 @@ class SocialPost():
         if not models.Post.objects.filter(post_identifier=self.post_id).exists():
             # Create seperate post models for each piece of content
             for content in contents:
-                model = model.Post(author=self.author,
-                                   platform=self.platform,
-                                   caption=self.caption)
+                model = models.Post.objects.create(author=self.author,
+                                                   platform=self.platform,
+                                                   caption=self.caption)
                 content.commit(model)
                 model.save()
 
@@ -113,7 +113,7 @@ class SocialScraper(ABC):
     @abstractmethod
     # Scrape the given hashtag tag
     # Returns a list of SocialPost posts scraped from the hashtag
-    def scrape_hashtag(tag):
+    def scrape_hashtag(self, tag):
         pass
 
 # Create Social Media Scraper that targets Instagram
