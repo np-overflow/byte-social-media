@@ -291,20 +291,20 @@ class InstagramScraper(SocialScraper):
 
 if __name__ == "__main__":
     while True:
+        scraper = None
         try:
             scraper = InstagramScraper()
             # Scrape the hashtag
-            print("Scrapping hashtag...")
-            #hashtags = ["#bytehackz", "#bytehackz2018", "#bytehackzhackathon"]
-            hashtags =  ["#watercolor"]
-            posts = [ scraper.scrape_hashtag(tag) for tag in hashtags ]
-            posts = [ p for ps in posts for p in ps ]  # flatten 2d list
-            print("scraped {} posts.".format(len(posts)))
-
-            # Commit data to DB
-            print("Commiting to DB...")
-            for p in posts: p.commit()
+            hashtags = ["#bytehackz", "#bytehackz2018", "#bytehackzhackathon"]
+            for hashtag in hashtags:
+                print("Scrapping {} hashtag...".format(hashtag))
+                posts = scraper.scrape_hashtag(hashtag)
+                print("scraped {} posts for {}".format(len(posts), hashtag))
+                print("Commiting to DB...")
+                for p in posts:
+                    p.commit()
         except Exception as e:
-            print(e.message, e.args)
+            print(e)
         finally:
-            scraper.close()
+            if scraper is not None:
+                scraper.close()
