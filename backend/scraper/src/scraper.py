@@ -19,7 +19,7 @@ from time import sleep
 
 # Django setup to allow interfacing with django models
 def setup_django():
-    # Add api to system path to faciliate importing of modules from it
+    # Add api to system path to facilitate importing of modules from it
     sys.path.append('/root/api')
 
     # Django setup to interface with api through django
@@ -30,7 +30,7 @@ setup_django()  # Must be run before importing models
 from posts import models
 
 # Social media model bridges
-# Social Media plaforms
+# Social Media platforms
 class SocialPlatform(Enum):
     Facebook = "facebook"
     Instagram = "instagram"
@@ -74,7 +74,7 @@ class SocialPost():
 
     # Commit this object's state to the Post model in the data
     def commit(self):
-        # Only commit the model if it doesnt already exists in DB
+        # Only commit the model if it doesn't already exists in DB
         if not models.Post.objects.filter(post_identifier=self.post_id).exists():
             # Create seperate post models for each piece of content
             for content in contents:
@@ -123,17 +123,17 @@ class InstagramScraper(SocialScraper):
         self.login()
 
     ## Scraper Actions
-    # Perform instagram login using credientials from the env vars
+    # Perform instagram login using credentials from the env vars
     # INSTAGRAM_USERNAME and INSTAGRAM_PASSWORD
     def login(self):
-        # Retreive login page and extract elements
+        # Retrieve login page and extract elements
         self.driver.get("https://www.instagram.com/accounts/login/")
         username_input = self.driver.find_element_by_name("username")
         password_input = self.driver.find_element_by_name("password")
         login_button = \
             self.driver.find_element_by_css_selector('button[type="submit"]')
 
-        # Enter crendientials
+        # Enter credentials
         username_input.send_keys(os.environ["INSTAGRAM_USERNAME"])
         password_input.send_keys(os.environ["INSTAGRAM_PASSWORD"])
 
@@ -143,7 +143,7 @@ class InstagramScraper(SocialScraper):
     # Perform search of given search term on instagram
     # Returns True if search is performed successfully otherwise False
     def search(self, term):
-        # Retrieve search bar elemeent
+        # Retrieve search bar element
         search_input = self.driver.\
             find_element_by_css_selector('input[type="text"][placeholder="Search"]')
         # Input search term
@@ -213,13 +213,13 @@ class InstagramScraper(SocialScraper):
         contents = []
         # Extract SocialContent from content element
         def extract_content(element):
-            has_img = len(element.find_elements_by_tag_name("video")) ==  0
+            has_img = len(element.find_elements_by_tag_name("video")) == 0
 
             content_type = ContentType.Image if has_img else ContentType.Video
             if has_img:
-                content = element.find_element_by_tag_name("img") 
+                content = element.find_element_by_tag_name("img")
             else:
-                content = element.find_element_by_tag_name("video") 
+                content = element.find_element_by_tag_name("video")
             content_url = content.get_attribute("src")
 
             return SocialContent(content_type,
@@ -229,11 +229,11 @@ class InstagramScraper(SocialScraper):
         content_div = \
             self.driver.find_element_by_xpath("//article/div[1]")
 
-        # Determine if multiple images has to be extracted from a carosell
-        has_carosell = len(content_div.find_elements_by_tag_name("ul")) != 0
+        # Determine if multiple images has to be extracted from a carousel
+        has_carousel = len(content_div.find_elements_by_tag_name("ul")) != 0
 
-        if has_carosell:
-            # Extract multiple content elements from carosell
+        if has_carousel:
+            # Extract multiple content elements from carousel
             for content_wrapper in content_div.find_elements_by_xpath(
                     "div/div/div/div[2]/div/div[1]/div/ul/li"):
 
