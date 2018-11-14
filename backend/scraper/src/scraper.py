@@ -104,6 +104,9 @@ class SocialScraper(ABC):
 
         self.driver.implicitly_wait(5)  # wait for 5 sec when trying to find elements
 
+    def close(self):
+        self.driver.close()
+
     ## Scraper Utilities
     # Scroll to the bottom of the page
     def scroll_bottom(self):
@@ -303,5 +306,5 @@ if __name__ == "__main__":
             for p in posts: p.commit()
         except KeyboardInterrupt:
             break
-        except:
-            pass
+        finally:
+            scraper.close()
