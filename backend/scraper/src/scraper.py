@@ -304,7 +304,7 @@ if __name__ == "__main__":
             # Commit data to DB
             print("Commiting to DB...")
             for p in posts: p.commit()
-        except KeyboardInterrupt:
-            break
+        except Exception as e:
+            print(e.message, e.args)
         finally:
             scraper.close()
