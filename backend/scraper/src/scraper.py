@@ -48,30 +48,24 @@ class SocialContent():
         self.content_type = content_type
         self.content_url = content_url
 
-    # Commit this object's state to the Media model in the database
-    # as the media for the given post object
-    def commit(self, post_model):
-        if models.Media.objects.filter(src=self.content_url).exists():
-            # Retrieve existing mode from DB if already exists
-            model = models.Media.objects.get(src=self.content_url)
-        else:
-            # Create media model from object state
-            model = models.Media.objects.create(kind=self.content_type,
-                                                src=self.content_url)
-
-        # Assign model to post
-        post_model.media = model
+    # Get or create this object from the database
+    def get_or_create(self):
+        return models.Media.objects.get_or_create(src=self.content_url,
+                                                  kind=self.content_type)[0]
 
 # Represents a social media posts for a given attributes:
 # platform, author, caption, and array of contents
 # Bridges with api's Post model
 class SocialPost():
-    def __init__(self, platform, post_id, author, caption, contents=[]):
+    def __init__(self, platform, post_id, author, caption, contents=None):
         self.platform = platform
         self.post_id = post_id
         self.author = self.truncate_str(author, 100)
         self.caption = self.truncate_str(caption, 400)
-        self.contents = contents
+        if contents is None:
+            self.contents = []
+        else:
+            self.contents = contents
 
     @staticmethod
     def truncate_str(s, max_length):
@@ -87,11 +81,11 @@ class SocialPost():
         if not models.Post.objects.filter(post_identifier=self.post_id).exists():
             # Create separate post models for each piece of content
             for content in self.contents:
-                model = models.Post.objects.create(author=self.author,
-                                                   platform=self.platform,
-                                                   caption=self.caption)
-                content.commit(model)
-                model.save()
+                media_instance = content.get_or_create()
+                model = models.Post.objects.create(
+                    author=self.author, platform=self.platform,
+                    caption=self.caption, post_identifier=self.post_id,
+                    media=media_instance)
 
 ## Social Media Scrapers
 # Defines an interface for a Social media scraper that all Social media scrapers
@@ -202,7 +196,9 @@ class InstagramScraper(SocialScraper):
         self.driver.get(post_url)
 
         # Extract post id from url
-        post_id = re.search("/([a-zA-Z0-9]+)/?", post_url).group(1)
+        # Sample url: https://www.instagram.com/p/BqHNgyeHWUt/
+        #                                    Retrieve ^
+        post_id = post_url.split("/")[-2]
 
         # Extract post author
         # NOTE: Does not always work
