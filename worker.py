@@ -8,8 +8,8 @@ from pprint import pprint
 
 ## Constants ##
 TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
-GROUP_NAME = 'A Hangman Game'
-DELAY = 5
+CHAT_ID = -364030033
+DELAY = 20
 ##
 
 Session = sessionmaker(bind=engine)
@@ -19,9 +19,10 @@ tbot = TBot(TOKEN)
 last_time = 0
 while True:
     # Don't spam the server
-    time.sleep(max(0, DELAY - (time.time() - last_time)))
+    duration = time.time() - last_time
+    print('Elapsed Time:', duration)
+    time.sleep(max(0, DELAY - duration))
     last_time = time.time()
-    print('Update!')
 
     updates = tbot.get_updates()
     for update in updates:
@@ -29,8 +30,8 @@ while True:
         message =   update.get('message')
         if message is None: continue
         # Check if from group
-        group =     message['chat'].get('title')
-        if group != GROUP_NAME: continue
+        chat_id =   message['chat']['id']
+        if chat_id != CHAT_ID: continue
 
         # Parse Message
         name =      message['from']['first_name']
