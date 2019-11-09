@@ -30,6 +30,7 @@ while True:
         if chat_id != CHAT_ID: continue
 
         # Parse Message
+        msg_id =    message['message_id']
         name =      message['from']['first_name']
         date =      message['date']
         text =      message.get('text')
@@ -47,7 +48,7 @@ while True:
         media = models.create_media(
             kind=models.ContentType.Image,
             # TODO: Set the source to a URL to the file
-            src="",
+            src=photo_path,
         )
 
         post = models.create_post(
@@ -55,7 +56,7 @@ while True:
             # and should be a string.
             # See models.int_id_to_str if you need a function to convert an
             # integer to a string.
-            post_id="",
+            post_id=models.int_id_to_str(msg_id),
             platform=models.SocialPlatform.Telegram,
             date=datetime.fromtimestamp(date),
             author=name,
