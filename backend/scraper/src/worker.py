@@ -1,8 +1,7 @@
-from sqlalchemy.orm import sessionmaker
-from models import engine, Post
+import models
 from tbot import TBot
 
-from datetime import datetime #import pytz
+from datetime import datetime
 import time
 from pprint import pprint
 
@@ -11,9 +10,6 @@ TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
 CHAT_ID = -364030033
 DELAY = 20
 ##
-
-Session = sessionmaker(bind=engine)
-session = Session()
 
 tbot = TBot(TOKEN)
 last_time = 0
@@ -48,12 +44,21 @@ while True:
         if not any((text, photo)): continue
         
         # Add to DB
-        post = Post(
-            name=name,
-            date=datetime.fromtimestamp(date), #pytz.timezone('singapore')
-            message=text,
-            photo=photo_path,
-            caption=caption
+        media = models.create_media(
+            kind=models.ContentType.Image,
+            # TODO: Set the source to a URL to the file
+            src="",
         )
-        session.add(post)
-        session.commit()
+
+        post = models.create_post(
+            # TODO: Set the post ID, should be unique for all Telegram messages
+            # and should be a string.
+            # See models.int_id_to_str if you need a function to convert an
+            # integer to a string.
+            post_id="",
+            platform=models.SocialPlatform.Telegram,
+            date=datetime.fromtimestamp(date),
+            author=name,
+            caption=caption or message,
+            media=media,
+        )

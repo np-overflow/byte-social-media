@@ -2,9 +2,10 @@ from django.db import models
 
 
 class Post(models.Model):
-    post_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=100)
+    post_id = models.CharField(max_length=100)
+    platform = models.CharField(max_length=100)
     date = models.DateTimeField()
+    author = models.CharField(max_length=100)
     caption = models.CharField(max_length=400)
     kind = models.CharField(max_length=10)
     # Fixed Length should be 32 + 4 (4 for extension)
