@@ -6,6 +6,7 @@ import CardCaption from "../../CardCaption"
 import TwitterCard from "../FacebookCard";
 import FacebookCard from "../FacebookCard";
 import InstagramCard from "../InstagramCard";
+import TelegramCard from "../TelegramCard";
 
 const FeedCard = props => {
     invariant(props.cardJson, "FeedCard should have a cardJson prop")
@@ -29,6 +30,8 @@ const FeedCard = props => {
             return <InstagramCard {...cardProps}>{media}{caption}{props.children}</InstagramCard>
         case "facebook":
             return <FacebookCard {...cardProps}>{media}{caption}{props.children}</FacebookCard>
+        case "telegram":
+            return <TelegramCard {...cardProps}>{media}{caption}{props.children}</TelegramCard>
     }
 }
 

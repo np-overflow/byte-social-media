@@ -20,6 +20,9 @@ export const TWITTER_BG_COLOR = "#1D8DEE"
 export const INSTAGRAM_SRC = "/assets/imgs/instagram_logo/instagram-logo.svg"
 export const INSTAGRAM_BG_COLOR = "#CD1662"
 
+export const TELEGRAM_SRC = "/assets/imgs/instagram_logo/telegram-logo.svg"
+export const TELEGRAM_BG_COLOR = "#37ADFF"
+
 export const API_ENDPOINT_HASHTAGS = "/api/hashtags/"
 export const API_SOCKET_ENDPOINT_POSTS = construct_ws_url("ws/posts/")
 export const API_SOCKET_ENDPOINT_ADMIN_POSTS = construct_ws_url("ws/admin/")
