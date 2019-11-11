@@ -4,9 +4,9 @@ from tbot import TBot
 TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
 BOT_URL = f'https://api.telegram.org/bot{TOKEN}/'
 HOST = '94.237.74.114'
-PORT = 80
+PORT = 443
 URL = f'/telegram/{TOKEN}'
-WEBHOOK_URL = f'https://{HOST}:443{URL}'
+WEBHOOK_URL = f'https://{HOST}:{PORT}{URL}'
 
 bot = TBot(TOKEN)
 
