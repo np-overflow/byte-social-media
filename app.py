@@ -10,7 +10,7 @@ WEBHOOK_URL = f'{URL}/telegram'
 
 bot = TBot(TOKEN)
 
-@app.route('/telegram', methods=['POST'])
+@app.route(f'/telegram/{TOKEN}', methods=['POST'])
 def telegram():
     pprint(request.json)
     return ''
