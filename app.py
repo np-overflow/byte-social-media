@@ -19,4 +19,4 @@ def telegram():
 
 if __name__ == "__main__":
     bot.set_webhook(WEBHOOK_URL, PUBLIC_CERT_PATH)
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True, ssl_context=('public.pem', 'private.key'))
