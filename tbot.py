@@ -38,7 +38,7 @@ class TBot:
 
     def set_webhook(self, webhook_url):
         params = {'url': webhook_url}
-        response = self.request('setWebhook', files=params)
+        response = self.request('setWebhook', json=params)
         return response
 
     # def set_webhook(self, webhook_url, cert_path):
