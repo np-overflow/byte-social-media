@@ -12,6 +12,10 @@ PUBLIC_CERT_PATH = 'public.pem'
 
 bot = TBot(TOKEN)
 
+@app.route('/')
+def index():
+    return 'hello'
+
 @app.route(URL, methods=['POST'])
 def telegram():
     pprint(request.json)
