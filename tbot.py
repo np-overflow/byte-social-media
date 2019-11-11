@@ -36,7 +36,12 @@ class TBot:
         urllib.request.urlretrieve(self.file_url + file_path, os.path.join(IMAGE_FOLDER, file_name))
         return file_name
 
-    def set_webhook(self, webhook_url, cert_path):
-        params = {'url': webhook_url, 'certificate': cert_path}
+    def set_webhook(self, webhook_url):
+        params = {'url': webhook_url}
         response = self.request('setWebhook', json=params)
         return response
+
+    # def set_webhook(self, webhook_url, cert_path):
+    #     params = {'url': webhook_url, 'certificate': cert_path}
+    #     response = self.request('setWebhook', json=params)
+    #     return response
