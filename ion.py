@@ -6,7 +6,7 @@ BOT_URL = f'https://api.telegram.org/bot{TOKEN}/'
 HOST = '94.237.74.114'
 PORT = 80
 URL = f'/telegram/{TOKEN}'
-WEBHOOK_URL = f'https://{HOST}{URL}'
+WEBHOOK_URL = f'https://{HOST}:443{URL}'
 
 bot = TBot(TOKEN)
 
