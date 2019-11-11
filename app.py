@@ -7,7 +7,7 @@ app = Flask(__name__)
 TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
 HOST = '94.237.74.114'
 URL = f'/telegram/{TOKEN}'
-WEBHOOK_URL = f'https://{HOST}/{URL}'
+WEBHOOK_URL = f'https://{HOST}{URL}'
 PUBLIC_CERT_PATH = 'public.pem'
 
 bot = TBot(TOKEN)
