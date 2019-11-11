@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
 URL = '94.237.74.114'
-WEBHOOK_URL = '{URL}/telegram'
+WEBHOOK_URL = f'{URL}/telegram'
 
 bot = TBot(TOKEN)
 
