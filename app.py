@@ -16,3 +16,4 @@ def telegram():
 
 if __name__ == "__main__":
     bot.set_webhook(WEBHOOK_URL)
+    app.run(debug=True)
