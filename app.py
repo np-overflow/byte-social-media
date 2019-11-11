@@ -7,7 +7,8 @@ app = Flask(__name__)
 TOKEN = '827940689:AAFH0jE2qa6wvid-3my020PSv1sRO_F5bDM'
 HOST = '94.237.74.114'
 PORT = 443
-URL = f'/telegram/{TOKEN}'
+#URL = f'/telegram/{TOKEN}'
+URL = '/stuff'
 WEBHOOK_URL = f'https://{HOST}:{PORT}{URL}'
 PUBLIC_CERT_PATH = 'public.pem'
 
