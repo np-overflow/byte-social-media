@@ -17,7 +17,7 @@ class TBot:
 
     def request(self, method, *args, **kwargs):
         response = requests.get(self.url + method, *args, **kwargs)
-        return response.json()['result']
+        return response.json().get('result')
     
     def get_updates(self):
         params = {'offset': self.last_id}
