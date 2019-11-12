@@ -51,7 +51,7 @@ def admin_input(request):
 @csrf_exempt
 def telegram_webhook(request):
     if request.method != "POST":
-        return
+        return HttpResponse("")
 
     token = settings.TELEGRAM_BOT_TOKEN
     json_request = json.loads(request.body)
@@ -76,7 +76,7 @@ def telegram_webhook(request):
             message = ("The bot has been rate limited to prevent spam. Please "
                        "wait for a while before sending again.")
             telegram_bot.send_message(token, chat_id, message)
-            return
+            return HttpResponse("")
 
     # Download the image
     photo = message.get("photo", None)
@@ -99,3 +99,5 @@ def telegram_webhook(request):
         kind=(file_path and models.ContentType.Image.value),
         src=file_path,
     )
+
+    return HttpResponse("")
