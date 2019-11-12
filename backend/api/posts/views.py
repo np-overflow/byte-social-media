@@ -79,7 +79,7 @@ def telegram_webhook(request):
             # Exceeded rate limit. Ignore the request
             message = ("The bot has been rate limited to prevent spam. Please "
                        "wait for a while before sending again.")
-            telegram_bot.send_message(token, chat_id, message)
+            telegram_bot.send_message(token, message["chat"]["id"], message)
             return HttpResponse("")
 
     # Download the image
