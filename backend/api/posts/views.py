@@ -77,9 +77,9 @@ def telegram_webhook(request):
         timedelta = tz_aware_last_post_date - current_time
         if timedelta.total_seconds() < 5*60:
             # Exceeded rate limit. Ignore the request
-            message = ("The bot has been rate limited to prevent spam. Please "
-                       "wait for a while before sending again.")
-            telegram_bot.send_message(token, message["chat"]["id"], message)
+            telegram_bot.send_message(token, message["chat"]["id"],
+                "The bot has been rate limited to prevent spam. Please "
+                "wait for a while before sending again.")
             return HttpResponse("")
 
     # Download the image
