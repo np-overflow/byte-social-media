@@ -70,7 +70,9 @@ def telegram_webhook(request):
         last_post_by_user = last_post_by_user[0]
 
         current_time = dt.datetime.now()
-        timedelta = last_post_by_user.date - current_time
+        sg_tzinfo = dt.timezone(dt.timedelta(hours=8, minutes=0))
+        tz_aware_last_post_date = last_post_by_user.date.replace(tzinfo=sg_tzinfo)
+        timedelta = tz_aware_last_post_date - current_time
         if timedelta.total_seconds() < 5*60:
             # Exceeded rate limit. Ignore the request
             message = ("The bot has been rate limited to prevent spam. Please "
@@ -92,10 +94,9 @@ def telegram_webhook(request):
     author = message['from']['first_name']
     caption = message.get("caption", message.get("text", ""))
 
-    sg_tzinfo = dt.timezone(dt.timedelta(hours=8, minutes=0))
     models.Post.objects.create(
         post_id=unique_id, platform=models.SocialPlatform.Telegram.value,
-        date=dt.datetime.fromtimestamp(date, sg_tzinfo),
+        date=dt.datetime.fromtimestamp(date),
         author=author, caption=caption,
         kind=(file_path and models.ContentType.Image.value),
         src=file_path,
