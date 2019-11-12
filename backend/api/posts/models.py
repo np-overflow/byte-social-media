@@ -36,7 +36,7 @@ def int_id_to_str(int_id):
 
 
 def media_to_dict(media_instance):
-    if media_instance is not None:
+    if media_instance.kind:
         return {
             "type": media_instance.kind,
             "src": media_instance.src,
