@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+import datetime as dt
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -69,7 +69,7 @@ def telegram_webhook(request):
     if last_post_by_user.exists():
         last_post_by_user = last_post_by_user[0]
 
-        current_time = datetime.now()
+        current_time = dt.datetime.now()
         timedelta = last_post_by_user.date - current_time
         if timedelta.total_seconds() < 5*60:
             # Exceeded rate limit. Ignore the request
@@ -92,9 +92,10 @@ def telegram_webhook(request):
     author = message['from']['first_name']
     caption = message.get("caption", message.get("text", ""))
 
+    sg_tzinfo = dt.timezone(dt.timedelta(hours=8, minutes=0))
     models.Post.objects.create(
         post_id=unique_id, platform=models.SocialPlatform.Telegram.value,
-        date=datetime.fromtimestamp(date),
+        date=dt.datetime.fromtimestamp(date, sg_tzinfo),
         author=author, caption=caption,
         kind=(file_path and models.ContentType.Image.value),
         src=file_path,
