@@ -95,6 +95,7 @@ def telegram_webhook(request):
     models.Post.objects.create(
         post_id=unique_id, platform=models.SocialPlatform.Telegram.value,
         date=datetime.fromtimestamp(date),
-        author=author, caption=caption, kind=models.ContentType.Image.value,
+        author=author, caption=caption,
+        kind=(file_path and models.ContentType.Image.value),
         src=file_path,
     )
