@@ -7,7 +7,7 @@ from django.db import models
 class Post(models.Model):
     post_id = models.CharField(max_length=100)
     platform = models.CharField(max_length=100)
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now=True)
     author = models.CharField(max_length=100)
     caption = models.CharField(max_length=400)
     kind = models.CharField(max_length=10)
