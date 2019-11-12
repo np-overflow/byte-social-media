@@ -79,7 +79,7 @@ def telegram_webhook(request):
             return
 
     # Download the image
-    photo = message["photo"]
+    photo = message.get("photo", None)
     file_path = None
     if photo:
         file_id = photo[-1]['file_id']
