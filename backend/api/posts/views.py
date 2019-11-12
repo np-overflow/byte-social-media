@@ -65,16 +65,18 @@ def telegram_webhook(request):
     last_post_by_user = models.Post.objects.filter(
         post_id__startswith=chat_id,
         platform=models.SocialPlatform.Telegram,
-    ).order_by("date")[0]
+    ).order_by("date")
+    if last_post_by_user.exists():
+        last_post_by_user = last_post_by_user[0]
 
-    current_time = datetime.now()
-    timedelta = last_post_by_user.date - current_time
-    if timedelta.total_seconds() < 5*60:
-        # Exceeded rate limit. Ignore the request
-        message = ("The bot has been rate limited to prevent spam. Please "
-            "wait for a while before sending again.")
-        telegram_bot.send_message(token, chat_id, message)
-        return
+        current_time = datetime.now()
+        timedelta = last_post_by_user.date - current_time
+        if timedelta.total_seconds() < 5*60:
+            # Exceeded rate limit. Ignore the request
+            message = ("The bot has been rate limited to prevent spam. Please "
+                "wait for a while before sending again.")
+            telegram_bot.send_message(token, chat_id, message)
+            return
 
     # Download the image
     photo = message["photo"]
