@@ -12,7 +12,7 @@ class Post(models.Model):
     caption = models.CharField(max_length=400)
     kind = models.CharField(max_length=10, null=True)
     # Fixed Length should be 32 + 4 (4 for extension)
-    src = models.CharField(max_length=36, null=True)
+    src = models.CharField(max_length=200, null=True)
     isApproved = models.BooleanField(null=True)
 
 
