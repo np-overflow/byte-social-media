@@ -64,7 +64,7 @@ def telegram_webhook(request):
     # Rate limit the requests
     last_post_by_user = models.Post.objects.filter(
         post_id__startswith=chat_id,
-        platform=models.SocialPlatform.Telegram,
+        platform=models.SocialPlatform.Telegram.value,
     ).order_by("date")
     if last_post_by_user.exists():
         last_post_by_user = last_post_by_user[0]
@@ -74,7 +74,7 @@ def telegram_webhook(request):
         if timedelta.total_seconds() < 5*60:
             # Exceeded rate limit. Ignore the request
             message = ("The bot has been rate limited to prevent spam. Please "
-                "wait for a while before sending again.")
+                       "wait for a while before sending again.")
             telegram_bot.send_message(token, chat_id, message)
             return
 
@@ -93,8 +93,8 @@ def telegram_webhook(request):
     caption = message.get("caption", message.get("text", ""))
 
     models.Post.objects.create(
-        post_id=unique_id, platform=models.SocialPlatform.Telegram,
+        post_id=unique_id, platform=models.SocialPlatform.Telegram.value,
         date=datetime.fromtimestamp(date),
-        author=author, caption=caption, kind=models.ContentType.Image,
-        src=file_path
+        author=author, caption=caption, kind=models.ContentType.Image.value,
+        src=file_path,
     )
