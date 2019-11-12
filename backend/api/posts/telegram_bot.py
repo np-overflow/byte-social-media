@@ -25,7 +25,7 @@ def _create_filename(file_ext):
 def download_image(token, file_id, download_location):
     # Get the file url
     params = {"file_id": file_id}
-    response = _bot_request('getFile', json=params)
+    response = _bot_request(token, 'getFile', json=params)
 
     # Download
     file_path = file_path = response['file_path']
