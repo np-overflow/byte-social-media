@@ -1,5 +1,6 @@
 import json
 import datetime as dt
+import pytz
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -69,9 +70,10 @@ def telegram_webhook(request):
     if last_post_by_user.exists():
         last_post_by_user = last_post_by_user[0]
 
-        current_time = dt.datetime.now()
-        sg_tzinfo = dt.timezone(dt.timedelta(hours=8, minutes=0))
-        tz_aware_last_post_date = last_post_by_user.date.replace(tzinfo=sg_tzinfo)
+        current_time = dt.datetime.utcnow().replace(tzinfo=pytz.utc)
+        sg_tzinfo = pytz.timezone("Asia/Singapore")
+        tz_aware_last_post_date = last_post_by_user.date.replace(
+            tzinfo=sg_tzinfo)
         timedelta = tz_aware_last_post_date - current_time
         if timedelta.total_seconds() < 5*60:
             # Exceeded rate limit. Ignore the request
