@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 
 from . import forms
 from . import models
@@ -47,6 +48,7 @@ def admin_input(request):
         return render(request, "posts/admin_input.html", {"form": form})
 
 
+@csrf_exempt
 def telegram_webhook(request):
     if request.method != "POST":
         return
