@@ -59,7 +59,7 @@ def telegram_webhook(request):
     message = json_request["message"]
     message_id = models.int_id_to_str(message["message_id"])
     chat_id = models.int_id_to_str(message["chat"]["id"])
-    unique_id = f"{message_id}_{chat_id}"
+    unique_id = f"{chat_id}_{message_id}"
 
     # Rate limit the requests
     last_post_by_user = models.Post.objects.filter(
