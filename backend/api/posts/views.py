@@ -84,7 +84,7 @@ def telegram_webhook(request):
     if photo:
         file_id = photo[-1]['file_id']
         filename = telegram_bot.download_image(
-            token, file_id, settings.MEDIA_URL)
+            token, file_id, settings.STATIC_ROOT)
         file_path = f'{settings.STATIC_URL}{filename}'
 
     # Save the request into the DB
