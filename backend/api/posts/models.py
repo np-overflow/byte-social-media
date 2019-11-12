@@ -1,3 +1,6 @@
+import base64
+import math
+from enum import Enum
 from django.db import models
 
 
@@ -11,6 +14,25 @@ class Post(models.Model):
     # Fixed Length should be 32 + 4 (4 for extension)
     src = models.CharField(max_length=36)
     isApproved = models.BooleanField(null=True)
+
+
+class SocialPlatform(Enum):
+    Facebook = "facebook"
+    Instagram = "instagram"
+    Twitter = "twitter"
+    Telegram = "telegram"
+
+
+class ContentType(Enum):
+    Video = "video"
+    Image = "image"
+
+
+def int_id_to_str(int_id):
+    """Converts an integer ID to a string that can be used in the DB"""
+    num_bytes = math.ceil(int_id.bit_length() / 8)
+    int_bytes = int_id.to_bytes(num_bytes, "big")
+    return base64.b64encode(int_bytes)
 
 
 def media_to_dict(media_instance):

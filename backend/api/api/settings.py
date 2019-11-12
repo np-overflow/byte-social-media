@@ -133,3 +133,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = "/api/static/"
+
+# Telegram Bot Token
+TELEGRAM_BOT_TOKEN = ""
